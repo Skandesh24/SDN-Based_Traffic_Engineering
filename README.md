@@ -139,13 +139,4 @@ Use these in Grafana to plot link utilization, flow counts, and to create alerts
 
 ---
 
-## License & Author
 Author: Skandesh S  
-(Include a LICENSE file if you wish to specify open-source terms.)
-
----
-
-If you want, I can:
-- shorten this to a one-page quickstart,
-- add example Grafana queries/panel JSON,
-- or prepare a small topology diagram and sample config file. Tell me which of those you'd like next.
