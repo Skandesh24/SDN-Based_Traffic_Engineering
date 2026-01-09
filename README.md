@@ -1,82 +1,151 @@
-SDN WAN TRAFFIC ENGINEERING WITH LIVE METRICS
+# SDN WAN Traffic Engineering with Live Metrics
 
-This project implements an SDN-based WAN Traffic Engineering simulation in Python.
-A centralized controller computes paths, monitors congestion, and reroutes traffic dynamically.
-Live WAN metrics are exported to Prometheus and visualized using Grafana.
+A Python-based simulation demonstrating SDN WAN traffic engineering with live observability. A centralized controller computes paths, monitors link congestion, and reroutes traffic dynamically. Metrics are exported to Prometheus and can be visualized in Grafana.
 
-FILES INCLUDED
-1. sde_wan_live_metrics.py  – Main SDN WAN simulation and Prometheus exporter
-2. prometheus.yml           – Prometheus scrape configuration
-3. README.md                – Execution guide
+---
 
-PREREQUISITES
-- Python 3
+## Features
+- Centralized SDN-like controller that computes shortest paths (Dijkstra) with congestion-aware costs
+- Dynamic traffic generation and congestion-triggered rerouting
+- Live metrics exported to Prometheus for monitoring
+- Visualize WAN behavior and reroutes in Grafana dashboards
+- Simple configuration and local execution for experimentation and coursework
+
+---
+
+## Repository contents
+- `sde_wan_live_metrics.py` — Main simulation, controller logic, and Prometheus exporter
+- `prometheus.yml` — Example Prometheus scrape configuration
+- `README.md` — This execution guide and project overview
+
+---
+
+## Prerequisites
+- Python 3.8+ (3.x)
 - Prometheus
 - Grafana
-- Python package: prometheus-client
+- Python package: `prometheus-client`
 
-Install dependency:
+Install the Python dependency:
+```bash
 pip install prometheus-client
+```
 
-EXECUTION STEPS
-Follow the steps exactly in the order given below.
+---
 
-STEP 1: RUN THE SDN WAN SIMULATION
+## Quickstart — Run the simulation and view metrics
+
+1. Start the SDN WAN simulation (this launches the controller, traffic generation, and Prometheus exporter):
+```bash
 python3 sde_wan_live_metrics.py
-
-This starts:
-- The SDN controller
-- WAN traffic flow generation
-- Congestion-aware rerouting
-- Prometheus metrics exporter on port 8000
-
-Metrics endpoint:
+```
+By default the Prometheus metrics endpoint will be available at:
+```
 http://localhost:8000/metrics
+```
 
-STEP 2: START PROMETHEUS
+2. Start Prometheus (systemd example; adapt for your environment):
+```bash
 sudo systemctl start prometheus
-
-Prometheus scrapes WAN metrics from the simulation.
+```
 Prometheus UI:
+```
 http://localhost:9090
+```
 
-STEP 3: START GRAFANA
+3. Start Grafana:
+```bash
 sudo systemctl start grafana-server
-
+```
 Grafana UI:
+```
 http://localhost:3000
+```
+Default Grafana login:
+- username: `admin`
+- password: `admin`
 
-Default login:
-username: admin
-password: admin
+Add Prometheus as a data source in Grafana (URL: `http://localhost:9090`) and build dashboards using the metrics listed below.
 
-Add Prometheus as a data source and visualize WAN metrics.
+---
 
-AVAILABLE METRICS
-- wan_link_util_mbps          : Link bandwidth utilization (Mbps)
-- wan_link_util_ratio         : Link utilization to capacity ratio
-- wan_link_active_flows       : Active flows per link
-- wan_total_active_flows      : Total active flows in the WAN
-- wan_flow_reroutes_total     : Number of congestion-based reroutes
+## Example Prometheus scrape config
+Use (or adapt) the included `prometheus.yml` and ensure it scrapes the simulation on port 8000:
+```yaml
+scrape_configs:
+  - job_name: 'sde_wan_sim'
+    static_configs:
+      - targets: ['localhost:8000']
+```
 
-STOPPING THE SERVICES
-After completing the experiment, stop the services using the commands below.
+---
 
-sudo systemctl stop prometheus
-sudo systemctl stop grafana-server
+## Available metrics
+Exported metric names (examples):
+- `wan_link_util_mbps` — Link bandwidth utilization (Mbps)
+- `wan_link_util_ratio` — Link utilization to capacity ratio (0..1)
+- `wan_link_active_flows` — Active flows on each link
+- `wan_total_active_flows` — Total active flows in the WAN
+- `wan_flow_reroutes_total` — Total number of congestion-triggered reroutes
 
-SIMULATION BEHAVIOR
-- Traffic flows are generated randomly between WAN nodes
-- Paths are computed using Dijkstra’s algorithm
-- Link cost includes latency and congestion penalty
-- Rerouting occurs when link utilization exceeds 75 percent
-- Changes are visible live in Prometheus and Grafana
+Use these in Grafana to plot link utilization, flow counts, and to create alerts (e.g., when utilization > 0.75).
 
-ACADEMIC USE
+---
 
-This project demonstrates SDN WAN traffic engineering, congestion-aware routing,
-and network observability. It is suitable for coursework in Software Defined Networking,
-Cloud Computing, and Computer Networks.
+## Simulation behavior and algorithmic details
+- Traffic flows are generated randomly between WAN nodes.
+- Paths are computed using Dijkstra’s algorithm.
+- Link cost = latency + congestion penalty (so congested links are less likely to be chosen).
+- Rerouting is triggered when link utilization exceeds 75% (configurable inside the script).
+- Metrics reflect live changes and reroutes, enabling real-time visualization.
 
-AUTHOR
-Skandesh S
+---
+
+## Configuration and tuning
+- Edit the main script to change:
+  - link capacities and latencies,
+  - flow generation rate,
+  - reroute threshold (default: 75% utilization),
+  - Prometheus port (default: 8000).
+- For larger topologies or different experiments, update the topology data structures or provide a loader for topology files.
+
+---
+
+## Development & contribution
+- Clone the repo
+- Run the simulation locally with Python
+- Suggested improvements:
+  - Add unit tests for path computation and rerouting logic
+  - Add a CLI for configuration (topology, thresholds, ports)
+  - Export additional metrics (per-flow RTT, per-path latency)
+- Contributions are welcome — open an issue or submit a pull request.
+
+---
+
+## Troubleshooting
+- Metrics not visible in Prometheus:
+  - Confirm the simulation is running and listening on port 8000
+  - Confirm `prometheus.yml` has the correct target and Prometheus has been reloaded
+- Grafana shows no data:
+  - Ensure Prometheus data source is correctly added and communicates with `http://localhost:9090`
+  - Check time range and refresh interval in Grafana panels
+
+---
+
+## Use cases
+- Coursework and demos for Software-Defined Networking (SDN), Cloud Networking, or Traffic Engineering classes
+- Prototyping policies for congestion-aware routing and network observability
+- Hands-on exercises with Prometheus + Grafana integration
+
+---
+
+## License & Author
+Author: Skandesh S  
+(Include a LICENSE file if you wish to specify open-source terms.)
+
+---
+
+If you want, I can:
+- shorten this to a one-page quickstart,
+- add example Grafana queries/panel JSON,
+- or prepare a small topology diagram and sample config file. Tell me which of those you'd like next.
