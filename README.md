@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1130861245.svg)](https://doi.org/10.5281/zenodo.19663117)
+
 # SDN WAN Traffic Engineering with Live Metrics
 
 A Python-based simulation demonstrating SDN WAN traffic engineering with live observability. A centralized controller computes paths, monitors link congestion, and reroutes traffic dynamically. Metrics are exported to Prometheus and can be visualized in Grafana.
